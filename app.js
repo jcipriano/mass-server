@@ -14,13 +14,29 @@ try {
   midiOut.openVirtualPort('');
 }
 
-// midiOut.sendMessage([144, data.message, 100]);
-
 // close midi port on termination
 process.on("SIGTERM", function(){
   midiOut.closePort();
 });
 
+/*
+// Set up a new input.
+var midiIn = new midi.input();
+
+// Count the available input ports.
+console.log(midiIn.getPortCount());
+
+// Get the name of a specified input port.
+console.log(midiIn.getPortName(0));
+
+// Configure a callback.
+midiIn.on('message', function(deltaTime, message) {
+  console.log('m:' + message + ' d:' + deltaTime);
+});
+
+// Open the first available input port.
+midiIn.openPort(0);
+*/
 
 /**
  * PubNub
@@ -34,19 +50,32 @@ var pubnub = require('pubnub').init({
     origin: "pubsub.pubnub.com"
 });
 
+var controlIds = [44, 45, 46, 47, 48, 49, 50, 51, 32, 33, 34, 35, 36, 37, 38, 39];
+
 pubnub.subscribe({
     channel: "mass_channel",
     connect: function() {
         console.log('Pubnub: Connected.');
-        /*
         pubnub.publish({
             channel: 'mass-channel',
-            message: { text : 'Ready to Receive.' }
+            message: { text : 'Server ready to receive.' }
         });
-        */
     },
     callback: function(msg) {
         console.log(msg);
+        
+        if(msg.type == 'ATTEND'){
+          console.log(controlIdQueue);
+          midiOut.sendMessage([144, controlIds.shift(), 100]);
+        }
+        
+        if(msg.type == 'RESET'){
+          var controlIds = [44, 45, 46, 47, 48, 49, 50, 51, 32, 33, 34, 35, 36, 37, 38, 39];
+        }
+        
+        if(msg.type == 'MIDI'){
+          midiOut.sendMessage(msg.data);
+        }
     },
     error: function() {
         console.log("Pubnub: Network connection dropped.");
