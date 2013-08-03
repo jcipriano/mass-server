@@ -1,0 +1,9 @@
+{
+  "name": "mass-server",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "midi": ">= 0.5.0",
+    "pubnub": ">= 3.5.3"
+  }
+}
