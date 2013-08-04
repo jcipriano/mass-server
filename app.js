@@ -50,14 +50,15 @@ var pubnub = require('pubnub').init({
     origin: "pubsub.pubnub.com"
 });
 
-var controlIds = [44, 45, 46, 47, 48, 49, 50, 51, 32, 33, 34, 35, 36, 37, 38, 39];
+var availPool = [44, 45, 46, 47, 48, 49, 50, 51, 32, 33, 34, 35, 36, 37, 38, 39];
+var usedPool = [];
 
 pubnub.subscribe({
     channel: "mass_channel",
     connect: function() {
         console.log('Pubnub: Connected.');
         pubnub.publish({
-            channel: 'mass-channel',
+            channel: 'mass_channel',
             message: { text : 'Server ready to receive.' }
         });
     },
@@ -65,17 +66,25 @@ pubnub.subscribe({
         console.log(msg);
         
         if(msg.type == 'ATTEND'){
-          console.log(controlIdQueue);
-          midiOut.sendMessage([144, controlIds.shift(), 100]);
+          console.log(availPool);
+          var controlId = availPool.shift();
+          console.log(controlId);
+          usedPool.push(controlId);
+          midiOut.sendMessage([144, controlId, 100]);
+        }
+        /*
+        else if(msg.type == 'EXIT'){
+          // The goggles to nothing!
         }
         
-        if(msg.type == 'RESET'){
-          var controlIds = [44, 45, 46, 47, 48, 49, 50, 51, 32, 33, 34, 35, 36, 37, 38, 39];
+        else if(msg.type == 'RESET'){
+          var availPool = [44, 45, 46, 47, 48, 49, 50, 51, 32, 33, 34, 35, 36, 37, 38, 39];
         }
         
-        if(msg.type == 'MIDI'){
+        else if(msg.type == 'MIDI'){
           midiOut.sendMessage(msg.data);
         }
+        */
     },
     error: function() {
         console.log("Pubnub: Network connection dropped.");
