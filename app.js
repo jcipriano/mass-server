@@ -80,11 +80,11 @@ pubnub.subscribe({
         else if(msg.type == 'RESET'){
           var availPool = [44, 45, 46, 47, 48, 49, 50, 51, 32, 33, 34, 35, 36, 37, 38, 39];
         }
-        
+        */
         else if(msg.type == 'MIDI'){
           midiOut.sendMessage(msg.data);
         }
-        */
+        
     },
     error: function() {
         console.log("Pubnub: Network connection dropped.");
